@@ -35,7 +35,7 @@ class Movie(models.Model):
     """Фильм"""
     title = models.CharField("Название", max_length=100)
     description = models.TextField("Описание")
-    poster = models.ImageField("Постер", upload_to="movies/")
+    poster = models.ImageField("Постер", upload_to="images/")
     year = models.PositiveSmallIntegerField("Дата выхода", default=2021)
     country = models.CharField("Страна", max_length=30)
     directors = models.ManyToManyField(Actor, verbose_name="режиссер", related_name="film_director")

@@ -13,7 +13,9 @@ class GenreAdmin(admin.ModelAdmin):
 @admin.register(Movie)
 class MovieAdmin(admin.ModelAdmin):
     """Фильмы"""
-    list_display = ("title", "url", "draft")
+    list_display = ("title","url", "draft")
+    list_filter = ("genres", "year")
+    search_fields = ("title", "genres__name")
 
 @admin.register(Actor)
 class ActorAdmin(admin.ModelAdmin):
