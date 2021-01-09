@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect
 from django.views.generic import ListView, DetailView
 from django.views.generic.base import View
 
@@ -8,7 +8,7 @@ class MoviesView(ListView):
     """Список фильмов"""
     model = Movie
     queryset = Movie.objects.filter(draft=False)
-    paginate_by = 1
+    paginate_by = 3
 
 
 class MovieDetailView(DetailView):
