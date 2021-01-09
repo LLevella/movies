@@ -1,2 +1,4 @@
 /venv
 moviebase/movies/migrations/__pycache__
+moviebase/movies/__pycache__
+moviebase/moviebase/__pycache__
