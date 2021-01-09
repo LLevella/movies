@@ -20,7 +20,13 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", include("movies.urls")),
+    path('api/api-auth/', include('rest_framework.urls')),
+    path("movie/", include("movies.urls")),
+    path("api/v1/", include("video_preview.urls")),
+	#path to djoser end points
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.jwt')),
+    path('', include('front.urls'))
 ]
 
 

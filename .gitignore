@@ -2,3 +2,7 @@
 moviebase/movies/migrations/__pycache__
 moviebase/movies/__pycache__
 moviebase/moviebase/__pycache__
+moviebase/front/__pycache__
+moviebase/front/node_modules
+moviebase/video_preview/__pycache__
+moviebase/video_preview/migrations/__pycache__
