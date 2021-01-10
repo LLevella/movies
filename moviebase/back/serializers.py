@@ -60,8 +60,10 @@ class MoviePlayerSerializer(serializers.ModelSerializer):
     print(player)
     return player
 
-  def update(self, player, validated_data):
-    player.movie = validated_data.get('movie', player.movie)
-    player.user = validated_data.get('year', player.user)        
-    player.update()        
+  def partial_update(self, validated_data):
+    player = MoviePlayer.objects.partial_update(
+        id=validated_data.get('id', None),
+        defaults={'pointer': validated_data.get("pointer")}
+    )
+    print(player)
     return player

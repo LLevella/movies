@@ -37,10 +37,9 @@ class MoviePlayerView(APIView):
         serializer = MoviePlayerSerializer(player)
         return Response(serializer.data)
 
-    def put(self, request, format=None):
-        print("id====", request.data.get("id"))
+    def patch(self, request, format=None):
         player = MoviePlayer.objects.get(id=request.data.get("id"))   
-        serializer = MoviePlayerSerializer(player, data=request.data)
+        serializer = MoviePlayerSerializer(player, data=request.data, partial=True)
         if serializer.is_valid():            
             serializer.save()           
             return Response(serializer.data, status=status.HTTP_200_OK)
