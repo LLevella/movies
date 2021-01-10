@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from django.contrib.auth.models import User
 
 
 class Actor(models.Model):
@@ -12,8 +13,8 @@ class Actor(models.Model):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('actor_detail', kwargs={"slug": self.name})
+    # def get_absolute_url(self):
+    #     return reverse('actor_detail', kwargs={"slug": self.name})
 
     class Meta:
         verbose_name = "Актеры и режиссеры"
@@ -51,13 +52,24 @@ class Movie(models.Model):
     def __str__(self):
         return self.title
 
-    def get_absolute_url(self):
-        return reverse("movie_detail", kwargs={"slug": self.url})
+    # def get_absolute_url(self):
+    #     return reverse("movie_detail", kwargs={"slug": self.url})
     
-    def get_player_url(self):
-        return reverse('player', kwargs={"slug": self.url})
+    # def get_player_url(self):
+    #     return reverse('player', kwargs={"slug": self.url})
 
 
     class Meta:
         verbose_name = "Фильм"
         verbose_name_plural = "Фильмы"
+
+class MoviePlayer(models.Model):
+    """Плеер фильма"""
+    user = models.ForeignKey(User, verbose_name="Пользователь", on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, verbose_name="Фильм", on_delete=models.CASCADE)
+    pointer = models.IntegerField("Секунд", default=0)
+    
+    class Meta:
+        unique_together = (('user', 'movie'),)
+        verbose_name = "Прогресс просмотра фильма"
+        verbose_name_plural = "Прогрессы просмотров фильмов"

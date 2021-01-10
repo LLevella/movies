@@ -42,9 +42,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'rest_framework_simplejwt',
-    'movies',
-    'video_preview',
-    'front',
+    'back',
+    # 'video_preview',
+    # 'front',
 ]
 
 MIDDLEWARE = [
