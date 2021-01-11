@@ -42,33 +42,37 @@ class Movie(models.Model):
     poster = models.ImageField("Постер", upload_to="images/")
     year = models.PositiveSmallIntegerField("Дата выхода", default=2021)
     country = models.CharField("Страна", max_length=30)
-    directors = models.ManyToManyField(Actor, verbose_name="режиссер", related_name="film_director")
-    actors = models.ManyToManyField(Actor, verbose_name="актеры", related_name="film_actor")
+    directors = models.ManyToManyField(
+        Actor, verbose_name="режиссер", related_name="film_director")
+    actors = models.ManyToManyField(
+        Actor, verbose_name="актеры", related_name="film_actor")
     genres = models.ManyToManyField(Genre, verbose_name="жанры")
     film = models.FileField("Просмотр", upload_to="files/")
     url = models.SlugField(max_length=130, unique=True)
     draft = models.BooleanField("Черновик", default=False)
-    
+
     def __str__(self):
         return self.title
 
     # def get_absolute_url(self):
     #     return reverse("movie_detail", kwargs={"slug": self.url})
-    
+
     # def get_player_url(self):
     #     return reverse('player', kwargs={"slug": self.url})
-
 
     class Meta:
         verbose_name = "Фильм"
         verbose_name_plural = "Фильмы"
 
+
 class MoviePlayer(models.Model):
     """Плеер фильма"""
-    user = models.ForeignKey(User, verbose_name="Пользователь", on_delete=models.CASCADE)
-    movie = models.ForeignKey(Movie, verbose_name="Фильм", on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, verbose_name="Пользователь", on_delete=models.CASCADE)
+    movie = models.ForeignKey(
+        Movie, verbose_name="Фильм", on_delete=models.CASCADE)
     pointer = models.IntegerField("Секунд", default=0)
-    
+
     class Meta:
         unique_together = (('user', 'movie'),)
         verbose_name = "Прогресс просмотра фильма"

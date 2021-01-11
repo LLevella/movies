@@ -8,4 +8,4 @@ moviebase/video_preview/__pycache__
 moviebase/video_preview/migrations/__pycache__
 moviebase/back/__pycache__/
 moviebase/back/migrations/__pycache__/
-.gitignore
+.vscode/

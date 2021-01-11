@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+import djcelery
 from pathlib import Path
 import os
 from datetime import timedelta
@@ -22,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY ='3jrez4+*jo(!q7!2u^n9pxp&kg*j9h_#oaw=2#4t6_)*f_3805'
+SECRET_KEY = '3jrez4+*jo(!q7!2u^n9pxp&kg*j9h_#oaw=2#4t6_)*f_3805'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -103,7 +104,6 @@ DATABASES = {
 }
 
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
@@ -161,7 +161,7 @@ REST_FRAMEWORK = {
         'rest_framework_json_api.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
-     'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -214,13 +214,14 @@ DJOSER = {
     'SERIALIZERS': {},
 }
 
-#redis
+# redis
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
+MOVIEPLAYER_REDIS = 1
 
 # # celery
-# CELERY_BROKER_URL = 'redis://localhost:6379'  
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379'  
-# CELERY_ACCEPT_CONTENT = ['application/json']  
+# CELERY_BROKER_URL = 'redis://localhost:6379'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+# CELERY_ACCEPT_CONTENT = ['application/json']
 # CELERY_RESULT_SERIALIZER = 'json'
 # CELERY_TASK_SERIALIZER = 'json'
