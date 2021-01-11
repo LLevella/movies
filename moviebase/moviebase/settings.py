@@ -44,8 +44,7 @@ INSTALLED_APPS = [
     'djoser',
     'rest_framework_simplejwt',
     'back',
-    # 'video_preview',
-    # 'front',
+    'django_rq',
 ]
 
 MIDDLEWARE = [
@@ -217,11 +216,16 @@ DJOSER = {
 # redis
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
-MOVIEPLAYER_REDIS = 1
 
-# # celery
-# CELERY_BROKER_URL = 'redis://localhost:6379'
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
-# CELERY_ACCEPT_CONTENT = ['application/json']
-# CELERY_RESULT_SERIALIZER = 'json'
-# CELERY_TASK_SERIALIZER = 'json'
+# redis db numbers
+RQ_DB = 0
+MOVIEPLAYER_DB = 1
+
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': RQ_DB,
+    },
+}

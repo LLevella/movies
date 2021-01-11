@@ -9,7 +9,7 @@ from django.conf import settings
 import redis
 
 movie_user_pointer = redis.StrictRedis(host=settings.REDIS_HOST,
-                                       port=settings.REDIS_PORT, db=settings.MOVIEPLAYER_REDIS)
+                                       port=settings.REDIS_PORT, db=settings.MOVIEPLAYER_DB)
 
 
 class MovieListView(APIView):
