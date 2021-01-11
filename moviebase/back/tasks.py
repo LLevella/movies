@@ -1,7 +1,16 @@
 # from .models import MoviePlayer
 # from .serializers import MoviePlayerSerializer
 # from .views import movie_user_pointer
+from django.conf import settings
 import redis
+import psycopg2
+
+rdb = redis.StrictRedis(host=settings.REDIS_HOST,
+                        port=settings.REDIS_PORT, db=settings.MOVIEPLAYER_DB)
+
+
+pgdb = psycopg2.connect(dbname=settings.PG_DB_NAME, user=settings.PG_DB_USER,
+                        password=settings.PG_DB_PASSWORD, host=settings.PG_DB_HOST)
 
 
 def db_relocator():

@@ -91,14 +91,20 @@ WSGI_APPLICATION = 'moviebase.wsgi.application'
 # }
 
 
+PG_DB_NAME = 'movies'
+PG_DB_USER = 'postgres'
+PG_DB_PASSWORD = 'postgres'
+PG_DB_HOST = 'localhost'
+PG_DB_PORT = 5432
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'movies',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': PG_DB_NAME,
+        'USER': PG_DB_USER,
+        'PASSWORD': PG_DB_PASSWORD,
+        'HOST': PG_DB_HOST,
+        'PORT': PG_DB_PORT,
     }
 }
 
