@@ -52,12 +52,10 @@ class MoviePlayerSerializer(serializers.ModelSerializer):
     fields = "__all__"
   
   def create(self, validated_data):
-    player = MoviePlayer.objects.update_or_create(
+    player = MoviePlayer.objects.create(
         user=validated_data.get('user', None),
         movie=validated_data.get('movie', None),
-        defaults={'pointer': validated_data.get("pointer")}
-    )
-    print(player)
+        pointer=validated_data.get("pointer", 0))
     return player
 
   def partial_update(self, validated_data):
@@ -65,5 +63,5 @@ class MoviePlayerSerializer(serializers.ModelSerializer):
         id=validated_data.get('id', None),
         defaults={'pointer': validated_data.get("pointer")}
     )
-    print(player)
+
     return player

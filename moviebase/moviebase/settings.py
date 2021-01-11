@@ -90,6 +90,9 @@ WSGI_APPLICATION = 'moviebase.wsgi.application'
 #     }
 # }
 
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
