@@ -25,5 +25,5 @@ class ActorAdmin(admin.ModelAdmin):
     list_display = ("name", "age")
 
 
-admin.site.site_title = "Django Movies"
-admin.site.site_header = "Django Movies"
+admin.site.site_title = "Movies"
+admin.site.site_header = "Movies"

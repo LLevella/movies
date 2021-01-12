@@ -1,4 +1,4 @@
-from .service import redis_movie_player_db, one_from_many_keys, request_to_obj
+from .service import redis_movie_player_db, redis_movies_db, redis_users_db, one_from_many_keys, request_to_obj, quick_check, long_check
 from .serializers import MovieListSerializer, MovieDetailSerializer,  MoviePlayerSerializer
 from .models import Movie, MoviePlayer
 
@@ -13,6 +13,7 @@ from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
+
 
 class MovieListView(APIView):
     """Вывод списка фильмов"""
@@ -66,6 +67,20 @@ class MoviePlayerView(APIView):
 
     def post(self, request):
         mup = request_to_obj(request, ["movie", "user", "pointer"])
+
+        if not quick_check(redis_users_db, mup["user"]):
+            if long_check(User, id=mup["user"]):
+                redis_users_db.set(mup["user"], mup["user"])
+            else:
+                return Response(mup, status=status.HTTP_400_BAD_REQUEST)
+
+        if not quick_check(redis_movies_db:
+            if (long_check(User, id=mup["movie"]))):
+                redis_movie_db.set(mup["movie"], mup["movie"])
+            else:
+                return Response(mup, status=status.HTTP_400_BAD_REQUEST)
+                
+        redis_users_db.set(mup["movie"], mup["movie"])
         key_id = one_from_many_keys([mup["movie"], mup["user"]], ":")
         redis_movie_player_db.set(key_id, mup["pointer"])
         return Response(mup, status=status.HTTP_201_CREATED)
