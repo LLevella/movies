@@ -1,15 +1,10 @@
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.views import APIView
 
 from .models import Movie, MoviePlayer
 from .serializers import MovieListSerializer, MovieDetailSerializer,  MoviePlayerSerializer
-
-from django.conf import settings
-import redis
-
-movie_user_pointer = redis.StrictRedis(host=settings.REDIS_HOST,
-                                       port=settings.REDIS_PORT, db=settings.MOVIEPLAYER_DB)
+from .service import redis_movie_player_db, one_from_many_keys, request_to_obj
 
 
 class MovieListView(APIView):
@@ -18,54 +13,65 @@ class MovieListView(APIView):
     def get(self, request):
         movies = Movie.objects.filter(draft=False)
         serializer = MovieListSerializer(movies, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class MovieDetailView(APIView):
     """Вывод фильма"""
 
-    def get(self, request, pk):
-        movie = Movie.objects.get(id=pk, draft=False)
-        serializer = MovieDetailSerializer(movie)
-        return Response(serializer.data)
+    def get(self, request):
+        if Movie.objects.filter(id=request.data.get("movie"), draft=False).exists():
+            movie = Movie.objects.get(
+                id=request.data.get("movie"), draft=False)
+            serializer = MovieDetailSerializer(movie)
+            obj = dict(serializer.data)
+            if not request.user.is_authenticated:
+                # отправим на страницу входа
+                obj["film"] = f"/auth/token/login"
+            return Response(obj, status=status.HTTP_200_OK)
+        return Response({}, status=status.HTTP_204_NO_CONTENT)
 
 
 class MoviePlayerView(APIView):
     """Добавление времени, обновление, получение времени по фильму и пользователю """
+    # в данном случае мы можем коротко запретить доступ не авторизованным
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        serializer = MoviePlayerSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            key_id = f'{movie_id}:{user_id}'
-            pointer = serializer.data["pointer"]
-            movie_user_pointer.set(key_id, pointer)
-            return Response({"movie": movie_id, "user": user_id, "pointer": serializer.data['pointer']}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        for key in redis_movie_player_db.scan_iter("*"):
+            print(key.decode('utf-8'))
+            pointer = redis_movie_player_db.get(key.decode('utf-8'))
+            print(key.decode('utf-8'), pointer.decode('utf-8'))
+            pointer = redis_movie_player_db.get(key)
+            print(key, pointer)
+            print("======================")
+        mup = request_to_obj(request, ["movie", "user", "pointer"])
+        key_id = one_from_many_keys([mup["movie"], mup["user"]], ":")
+        redis_movie_player_db.set(key_id, mup["pointer"])
+        return Response(mup, status=status.HTTP_201_CREATED)
 
     def get(self, request):
-        movie_id = request.data.get("movie")
-        user_id = request.data.get("user")
-        key_id = f'{movie_id}:{user_id}'
-        pointer = movie_user_pointer.get(key_id)
+        mup = request_to_obj(request, ["movie", "user"])
+        key_id = one_from_many_keys([mup["movie"], mup["user"]], ":")
+        pointer = redis_movie_player_db.get(key_id)
         if pointer:
-            return Response({"movie": movie_id, "user": user_id, "pointer": pointer}, status=status.HTTP_200_OK)
-        if MoviePlayer.objects.filter(movie=movie_id, user=user_id).exists():
-            player = MoviePlayer.objects.get(movie=movie_id, user=user_id)
+            mup["pointer"] = pointer
+        elif MoviePlayer.objects.filter(movie=mup["movie"], user=mup["user"]).exists():
+            player = MoviePlayer.objects.get(
+                movie=mup["movie"], user=mup["user"])
             serializer = MoviePlayerSerializer(player)
-            return Response({"movie": movie_id, "user": user_id, "pointer": serializer.data['pointer']}, status=status.HTTP_200_OK)
-        return Response({}, status=status.HTTP_204_NO_CONTENT)
+            mup["pointer"] = serializer.data['pointer']
+            redis_movie_player_db.set(key_id,  mup["pointer"])
+        else:
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+        return Response(mup, status=status.HTTP_200_OK)
 
     def patch(self, request):
-        movie_id = request.data.get("movie")
-        user_id = request.data.get("user")
-        new_pointer = request.data.get("pointer")
-        key_id = f'{movie_id}:{user_id}'
-        old_pointer = movie_user_pointer.get(key_id)
-        if old_pointer:
-            movie_user_pointer.set(key_id, new_pointer)
-            return Response({"movie": movie_id, "user": user_id, "pointer": new_pointer}, status=status.HTTP_200_OK)
-        if MoviePlayer.objects.filter(movie=movie_id, user=user_id).exists():
-            movie_user_pointer.set(key_id, new_pointer)
-            return Response({"movie": movie_id, "user": user_id, "pointer": new_pointer}, status=status.HTTP_200_OK)
+        mup = request_to_obj(request, ["movie", "user", "pointer"])
+        key_id = one_from_many_keys([mup["movie"], mup["user"]], ":")
+        old_pointer = redis_movie_player_db.get(key_id)
+        # and и or ленивые => если в Redis есть pointer, то в postgre не пойдем
+        if old_pointer or MoviePlayer.objects.filter(movie=mup["movie"], user=mup["user"]).exists():
+            redis_movie_player_db.set(key_id,  mup["pointer"])
+            return Response(mup, status=status.HTTP_200_OK)
         return Response({"errors": "Movies player is not found"}, status=status.HTTP_400_BAD_REQUEST)

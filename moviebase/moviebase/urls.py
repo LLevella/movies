@@ -23,6 +23,7 @@ urlpatterns = [
     path('api/api-auth/', include('rest_framework.urls')),
     path('django-rq/', include('django_rq.urls')),
     path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
     path('auth/', include('djoser.urls.jwt')),
     path("", include("back.urls")),
 ]
