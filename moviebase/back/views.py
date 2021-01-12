@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 
 from .models import Movie, MoviePlayer
 from .serializers import MovieListSerializer, MovieDetailSerializer,  MoviePlayerSerializer
-from .service import redis_movie_player_db, one_from_many_keys, request_to_obj
+from .service import redis_movie_player_db, one_from_many_keys, request_to_obj, db_relocator
 
 
 class MovieListView(APIView):
@@ -38,13 +38,6 @@ class MoviePlayerView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        for key in redis_movie_player_db.scan_iter("*"):
-            print(key.decode('utf-8'))
-            pointer = redis_movie_player_db.get(key.decode('utf-8'))
-            print(key.decode('utf-8'), pointer.decode('utf-8'))
-            pointer = redis_movie_player_db.get(key)
-            print(key, pointer)
-            print("======================")
         mup = request_to_obj(request, ["movie", "user", "pointer"])
         key_id = one_from_many_keys([mup["movie"], mup["user"]], ":")
         redis_movie_player_db.set(key_id, mup["pointer"])

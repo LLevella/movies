@@ -1,17 +1,22 @@
 from django.conf import settings
 import redis
 import psycopg2
+from psycopg2 import sql
 from django_rq import job
 
 
 def pg_insert_or_update(pgdb, values):
     with pgdb.cursor() as cursor:
         pgdb.autocommit = True
-        print("commit")
-        insert = sql.SQL('INSERT INTO back_movieplayer (movie_id, user_id, pointer) VALUES {}').format(
-            sql.SQL(',').join(map(sql.Literal, values))
-        )
-    cursor.execute(insert)
+        try:
+            insert = sql.SQL('INSERT INTO back_movieplayer (movie_id, user_id, pointer) VALUES {}').format(
+                sql.SQL(',').join(map(sql.Literal, values))
+            )
+            cursor.execute(insert)
+        except psycopg2.IntegrityError as e:
+            print(e.pgcode)
+            return False
+    return True
 
 
 def r_delete_keys(rdb, keys):
@@ -35,7 +40,9 @@ def db_relocator():
         movie_id, user_id = key_id.decode('utf-8').split(":")
         pointer = rdb.get(key_id)
         if cur_i == counter:
-            pg_insert_or_update(pgdb, pgdb_values)
+            if not pg_insert_or_update(pgdb, pgdb_values):
+                print("Problems was with the same data: ")
+                print(pgdb_values, rdb_keys)
             r_delete_keys(rdb, rdb_keys)
             cur_i = 0
             pgdb_values.clear()
@@ -43,10 +50,13 @@ def db_relocator():
         else:
             pgdb_values.append(
                 (int(movie_id), int(user_id), int(pointer.decode('utf-8'))))
+            rdb_keys.append(key_id)
             cur_i = cur_i + 1
 
     if cur_i > 0:
-        pg_insert_or_update(pgdb, pgdb_values)
+        if not pg_insert_or_update(pgdb, pgdb_values):
+            print("problems with the same data: ")
+            print(pgdb_values, rdb_keys)
         r_delete_keys(rdb, rdb_keys)
 
     pgdb.close()
