@@ -43,8 +43,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'rest_framework_simplejwt',
-    'back',
     'django_rq',
+    'back',
 ]
 
 MIDDLEWARE = [
@@ -224,8 +224,9 @@ REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 
 # redis db numbers
-RQ_DB = 0
-MOVIEPLAYER_DB = 1
+CACHES_DB = 0
+RQ_DB = 1
+MOVIEPLAYER_DB = 2
 
 
 RQ_QUEUES = {
@@ -234,4 +235,15 @@ RQ_QUEUES = {
         'PORT': REDIS_PORT,
         'DB': RQ_DB,
     },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}/{CACHES_DB}',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        'TIMEOUT': 300,
+    }
 }
