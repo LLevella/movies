@@ -10,3 +10,4 @@ moviebase/back/__pycache__/
 moviebase/back/migrations/__pycache__/
 .vscode/
 front/node_modules/
+*.mp4
