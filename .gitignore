@@ -1,3 +1,4 @@
+.vscode/
 /venv
 moviebase/movies/migrations/__pycache__
 moviebase/movies/__pycache__
@@ -8,6 +9,4 @@ moviebase/video_preview/__pycache__
 moviebase/video_preview/migrations/__pycache__
 moviebase/back/__pycache__/
 moviebase/back/migrations/__pycache__/
-.vscode/
-front/node_modules/
 *.mp4
