@@ -2,7 +2,7 @@ import redis
 from django.conf import settings
 import psycopg2
 from psycopg2 import sql
-from django_rq import job
+import datetime
 
 
 redis_movie_player_db = redis.StrictRedis(host=settings.REDIS_HOST,
@@ -12,6 +12,9 @@ redis_movies_db = redis.StrictRedis(host=settings.REDIS_HOST,
                                     port=settings.REDIS_PORT, db=settings.MOVIES_DB)
 redis_users_db = redis.StrictRedis(host=settings.REDIS_HOST,
                                    port=settings.REDIS_PORT, db=settings.USERS_DB)
+
+pgdb_test = psycopg2.connect(dbname=settings.PG_DB_NAME, user=settings.PG_DB_USER,
+                             password=settings.PG_DB_PASSWORD, host=settings.PG_DB_HOST)
 
 
 def request_to_obj(request, keys):
@@ -33,5 +36,5 @@ def quick_check(rdb, key):
     return False
 
 
-def long_check(model, ***args, **kwargs):
+def long_check(model, **kwargs):
     return model.objects.filter(**kwargs).exists()

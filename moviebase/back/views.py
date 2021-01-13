@@ -1,16 +1,17 @@
-from .service import redis_movie_player_db, redis_movies_db, redis_users_db, one_from_many_keys, request_to_obj, quick_check, long_check
-from .serializers import MovieListSerializer, MovieDetailSerializer,  MoviePlayerSerializer
-from .models import Movie, MoviePlayer
-
-import json
-
-from rest_framework.response import Response
-from rest_framework import status, permissions
-from rest_framework.views import APIView
-
-from django.core.cache import cache
-from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from django.conf import settings
+from django.core.cache import cache
+from rest_framework.views import APIView
+from rest_framework import status, permissions
+from rest_framework.response import Response
+import json
+from .models import Movie, MoviePlayer
+from .serializers import MovieListSerializer, MovieDetailSerializer,  MoviePlayerSerializer
+import datetime
+from .service import (redis_movie_player_db, redis_movies_db, redis_users_db,
+                      one_from_many_keys, request_to_obj, quick_check, long_check)
+
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
@@ -67,20 +68,23 @@ class MoviePlayerView(APIView):
 
     def post(self, request):
         mup = request_to_obj(request, ["movie", "user", "pointer"])
+        store_dt = datetime.datetime.strftime(
+            datetime.datetime.now(datetime.timezone.utc), '%Y-%m-%d %H:%M:%S')
 
         if not quick_check(redis_users_db, mup["user"]):
             if long_check(User, id=mup["user"]):
-                redis_users_db.set(mup["user"], mup["user"])
+                redis_users_db.set(
+                    mup["user"], store_dt)
             else:
                 return Response(mup, status=status.HTTP_400_BAD_REQUEST)
 
-        if not quick_check(redis_movies_db:
-            if (long_check(User, id=mup["movie"]))):
-                redis_movie_db.set(mup["movie"], mup["movie"])
+        if not quick_check(redis_movies_db, mup["movie"]):
+            if long_check(Movie, id=mup["movie"]):
+                redis_movies_db.set(
+                    mup["movie"], store_dt)
             else:
                 return Response(mup, status=status.HTTP_400_BAD_REQUEST)
-                
-        redis_users_db.set(mup["movie"], mup["movie"])
+
         key_id = one_from_many_keys([mup["movie"], mup["user"]], ":")
         redis_movie_player_db.set(key_id, mup["pointer"])
         return Response(mup, status=status.HTTP_201_CREATED)
@@ -107,6 +111,5 @@ class MoviePlayerView(APIView):
         old_pointer = redis_movie_player_db.get(key_id)
         # and и or ленивые => если в Redis есть pointer, то в postgre не пойдем
         if old_pointer or MoviePlayer.objects.filter(movie=mup["movie"], user=mup["user"]).exists():
-            redis_movie_player_db.set(key_id,  mup["pointer"])
             return Response(mup, status=status.HTTP_200_OK)
         return Response({"errors": "Movies player is not found"}, status=status.HTTP_400_BAD_REQUEST)
