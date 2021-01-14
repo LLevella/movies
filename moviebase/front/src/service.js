@@ -7,21 +7,17 @@ export default class MovieService{
         const url = BACK;
         return axios.get(url).then(response => response.data);
     }
-    getDetailedMovies(id){
-        const url = `${BACK}/detail`;
+    getDetailedMovies(movie){
+        const url = `${BACK}/detail/${movie}/`;
         return axios.get(url).then(response => response.data);
     }
-    getCustomer(pk) {
-        const url = `${API_URL}/api/customers/${pk}`;
+    getMoviePlayerInfo(movie, user) {
+         const url = `${BACK}/player/${movie}/${user}/`;
         return axios.get(url).then(response => response.data);
     }
-    deleteCustomer(customer){
-        const url = `${API_URL}/api/customers/${customer.pk}`;
-        return axios.delete(url);
-    }
-    createCustomer(customer){
+    createMoviePlayerInfo(player){
         const url = `${API_URL}/api/customers/`;
-        return axios.post(url,customer);
+        return axios.post(url,player);
     }
     updateCustomer(customer){
         const url = `${API_URL}/api/customers/${customer.pk}`;
