@@ -1,64 +1,76 @@
 // import logo from './logo.svg';
 import './App.css';
 import React, { Component } from 'react';
-import axios from 'axios';
-import { Container, Row, Col, Navbar, Nav, Card, } from "react-bootstrap";
+import { Container, Row, Navbar, Nav } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import MovieRouter from './movieRouter'
+import UserService from './userServices'
 
+const userService = new UserService();
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      films: []
+      isLoaded: false,
+      error: null,
+      username: "Гость",
+      user_id: -1,
+      movie: -1,
+      is_loggedIn: false
     };
-  } 
-
-  componentDidMount() {
-    // let player = { data: { "movie": 1, "user": 1, "pointer": 1000 } };
-    const url = `back/player/`;
-    
-    axios.patch(url, {'movie': 1, 'user': 1, 'pointer': 1000}).then(function (response) {
-        console.log(response);
-        const films = response.data;
-        this.setState({ films });
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    
-    // axios.get('back/detail/1/')
-    //   .then(function (response) {
-    //     console.log(response);
-    //     const films = response.data;
-    //     this.setState({ films });
-    //   })
-    //   .catch(function (error) {
-    //     console.log(error);
-    //   });
+    this.updateState = this.updateState.bind(this);
   }
-
+  updateState(app) {
+    this.setState(app)
+  }
+    componentDidMount() { 
+    userService.getUser("52086a7ecd654cb11851b42aefec814e75669cef")
+      .then(
+        (result) => {
+          this.setState({
+            isLoaded: true,
+            is_loggedIn: true,
+            username: result.data.username,
+            user_id: result.data.id
+          });
+        },
+        // Примечание: важно обрабатывать ошибки именно здесь, а не в блоке catch(),
+        // чтобы не перехватывать исключения из ошибок в самих компонентах.
+        (error) => {
+          this.setState({
+            isLoaded: true,
+            error: error,
+            is_loggedIn: false
+          });
+        }
+      )
+    }
+  
   render() {
+    const is_loggedIn = this.state.is_loggedIn;
+    const username = this.state.username;
     return (
       <>
         <Navbar bg="dark" variant="dark">
           <Navbar.Brand href="#main">Фильмы</Navbar.Brand>
-          <Nav className="mr-auto">
-            <Nav.Link href="#login">Вход</Nav.Link>
-            <Nav.Link href="#logout">Выход</Nav.Link>
-            <Nav.Link href="#register">Регистрация</Nav.Link>  
+          <Nav className="mr-auto"> 
+          {is_loggedIn ? (
+              <Nav.Link href="#logout" onClick={() => this.updateState("logout")}>Выход</Nav.Link>
+            ) : (
+                <>
+                  <Nav.Link href="#login" onClick={() => this.updateState("login")} >Вход</Nav.Link>
+                  <Nav.Link href="#register" onClick={() => this.updateState("register")}>Регистрация</Nav.Link>
+                </>
+            )
+          }
           </Nav>
+          <Navbar.Text>
+              Добро пожаловать, {username}
+          </Navbar.Text>
         </Navbar>
-        <Container fluid="md">
-          <Row>
-            <Col>
-              <Card style={{ width: '18rem' }}>
-                <Card.Img variant="top" src="/media/images/300x450.webp" />
-                <Card.Body>
-                  <Card.Title>Фантастиеские Твари</Card.Title>
-                  <Card.Link href="#detail">Подробнее</Card.Link>
-                </Card.Body>
-              </Card>
-              </Col>
+        <Container>
+          <Row className="justify-content-md-center" >
+              <MovieRouter></MovieRouter>
           </Row>
         </Container>
       </>

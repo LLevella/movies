@@ -108,9 +108,7 @@ class MoviePlayerView(APIView):
         return Response(mup, status=status.HTTP_200_OK)
 
     def patch(self, request):
-        print(request.data)
         mup = request_to_obj(request, ["movie", "user", "pointer"])
-        print(mup)
         key_id = one_from_many_keys([str(mup["movie"]), str(mup["user"])], ":")
         old_pointer = redis_movie_player_db.get(key_id)
         # and и or ленивые => если в Redis есть pointer, то в postgre не пойдем

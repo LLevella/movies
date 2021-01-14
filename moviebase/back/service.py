@@ -25,7 +25,6 @@ def request_to_obj(request, keys):
 
 
 def one_from_many_keys(keys, separator):
-    print(keys)
     if len(keys) > 0:
         return separator.join(keys)
     return None
