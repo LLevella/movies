@@ -38,7 +38,7 @@ class MovieListView(APIView):
 class MovieDetailView(APIView):
     """Вывод фильма"""
 
-    def get(self, movie_id):
+    def get(self, request, movie_id):
         movie_data = {}
         movie_key = f'movie:{movie_id}'
         if movie_key in cache:
@@ -56,8 +56,8 @@ class MovieDetailView(APIView):
 
         if not request.user.is_authenticated:
             # отправим на страницу входа
-            obj["film"] = f"/auth/token/login"
-        return Response(obj, status=status.HTTP_200_OK)
+            movie_data["film"] = f"/auth/token/login"
+        return Response(movie_data, status=status.HTTP_200_OK)
 
 
 class MoviePlayerView(APIView):
@@ -88,11 +88,11 @@ class MoviePlayerView(APIView):
         redis_movie_player_db.set(key_id, mup["pointer"])
         return Response(mup, status=status.HTTP_201_CREATED)
 
-    def get(self, request, movie_id, user_id):
+    def get(self, request, user_id, movie_id):
         mup = {}
         mup["movie"] = movie_id
         mup["user"] = user_id
-        key_id = one_from_many_keys([mup["movie"], mup["user"]], ":")
+        key_id = one_from_many_keys([str(movie_id), str(user_id)], ":")
         pointer = redis_movie_player_db.get(key_id)
         if pointer:
             mup["pointer"] = pointer

@@ -15,7 +15,7 @@ class App extends Component {
 
   componentDidMount() {
 
-    axios.get('back')
+    axios.get('back/detail/1/')
       .then(function (response) {
         console.log(response);
         const films = response.data;
