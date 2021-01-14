@@ -14,13 +14,16 @@ class App extends Component {
   } 
 
   componentDidMount() {
-     axios.get('back/')
-       .then(res => {
-         console.log(res);
-         console.log(res.data);
-        const films = res.data;
+
+    axios.get('back')
+      .then(function (response) {
+        console.log(response);
+        const films = response.data;
         this.setState({ films });
       })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
 
   render() {

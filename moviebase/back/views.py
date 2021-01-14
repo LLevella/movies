@@ -38,14 +38,13 @@ class MovieListView(APIView):
 class MovieDetailView(APIView):
     """Вывод фильма"""
 
-    def get(self, request):
-        movie_id = request.data.get("movie")
+    def get(self, movie_id):
         movie_data = {}
         movie_key = f'movie:{movie_id}'
         if movie_key in cache:
             movie_data = json.loads(cache.get(movie_key))
         else:
-            if Movie.objects.filter(id=request.data.get("movie"), draft=False).exists():
+            if Movie.objects.filter(id=movie_id, draft=False).exists():
                 movie = Movie.objects.get(
                     id=movie_id, draft=False)
                 serializer = MovieDetailSerializer(movie)
@@ -89,8 +88,10 @@ class MoviePlayerView(APIView):
         redis_movie_player_db.set(key_id, mup["pointer"])
         return Response(mup, status=status.HTTP_201_CREATED)
 
-    def get(self, request):
-        mup = request_to_obj(request, ["movie", "user"])
+    def get(self, request, movie_id, user_id):
+        mup = {}
+        mup["movie"] = movie_id
+        mup["user"] = user_id
         key_id = one_from_many_keys([mup["movie"], mup["user"]], ":")
         pointer = redis_movie_player_db.get(key_id)
         if pointer:
