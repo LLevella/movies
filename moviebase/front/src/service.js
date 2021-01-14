@@ -16,11 +16,11 @@ export default class MovieService{
         return axios.get(url).then(response => response.data);
     }
     createMoviePlayerInfo(player){
-        const url = `${API_URL}/api/customers/`;
+        const url = `${BACK}/player/`;
         return axios.post(url,player);
     }
-    updateCustomer(customer){
-        const url = `${API_URL}/api/customers/${customer.pk}`;
-        return axios.put(url,customer);
+    updateMoviePlayerInfo(player){
+        const url = `${BACK}/player/`;
+        return axios.patch(url,player);
     }
 }

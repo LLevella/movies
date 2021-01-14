@@ -14,9 +14,10 @@ class App extends Component {
   } 
 
   componentDidMount() {
-
-    axios.get('back/detail/1/')
-      .then(function (response) {
+    // let player = { data: { "movie": 1, "user": 1, "pointer": 1000 } };
+    const url = `back/player/`;
+    
+    axios.patch(url, {'movie': 1, 'user': 1, 'pointer': 1000}).then(function (response) {
         console.log(response);
         const films = response.data;
         this.setState({ films });
@@ -24,6 +25,16 @@ class App extends Component {
       .catch(function (error) {
         console.log(error);
       });
+    
+    // axios.get('back/detail/1/')
+    //   .then(function (response) {
+    //     console.log(response);
+    //     const films = response.data;
+    //     this.setState({ films });
+    //   })
+    //   .catch(function (error) {
+    //     console.log(error);
+    //   });
   }
 
   render() {

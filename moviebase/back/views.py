@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.conf import settings
 from django.core.cache import cache
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
@@ -63,7 +64,7 @@ class MovieDetailView(APIView):
 class MoviePlayerView(APIView):
     """Добавление времени, обновление, получение времени по фильму и пользователю """
     # в данном случае мы можем коротко запретить доступ не авторизованным
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         mup = request_to_obj(request, ["movie", "user", "pointer"])
@@ -107,8 +108,10 @@ class MoviePlayerView(APIView):
         return Response(mup, status=status.HTTP_200_OK)
 
     def patch(self, request):
+        print(request.data)
         mup = request_to_obj(request, ["movie", "user", "pointer"])
-        key_id = one_from_many_keys([mup["movie"], mup["user"]], ":")
+        print(mup)
+        key_id = one_from_many_keys([str(mup["movie"]), str(mup["user"])], ":")
         old_pointer = redis_movie_player_db.get(key_id)
         # and и or ленивые => если в Redis есть pointer, то в postgre не пойдем
         if old_pointer or MoviePlayer.objects.filter(movie=mup["movie"], user=mup["user"]).exists():

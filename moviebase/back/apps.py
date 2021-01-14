@@ -16,8 +16,10 @@ class BackConfig(AppConfig):
             job.delete()
 
         # Have 'db_relocation' run every 15 minutes
+        print("db_relocator was registered in the scheduler with 15 min interval")
         scheduler.schedule(datetime.datetime.now(datetime.timezone.utc),
                            db_relocator, interval=60 * 15)
         # Have 'r_db_clean' run every 30 days
+        print("r_db_clean was registered in the scheduler with 30 days interval")
         scheduler.schedule(datetime.datetime.now(datetime.timezone.utc),
                            r_db_clean, interval=60*60*24*30)
